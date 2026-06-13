@@ -18,7 +18,7 @@ func main() {
 	mux.HandleFunc("POST /send-raw-text", controllers.HandleLongTextFromClient)
 
 	// forward transformed url to original destination
-	mux.HandleFunc("GET /see-transformed-text", controllers.HandleShortTextFromClient)
+	mux.HandleFunc("GET /{code}", controllers.HandleShortTextFromClient)
 
 	fmt.Println("server running on http://localhost:8649")
 	log.Fatal(http.ListenAndServe(":8649", mux))
