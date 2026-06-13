@@ -24,6 +24,11 @@ func HandleLongTextFromClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !utils.IsValidURL(request.RawURL) {
+		http.Error(w, "invalid URL", http.StatusUnprocessableEntity)
+		return
+	}
+
 	log.Printf("received: %s\n", request.RawURL)
 	utils.RespondWithJSON(w, &LongTextResponse{ShortURL: utils.GenerateRandomString(6)})
 }
