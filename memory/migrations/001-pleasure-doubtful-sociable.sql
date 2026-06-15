@@ -1,0 +1,6 @@
+CREATE TABLE urls (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    original_url TEXT NOT NULL,
+    shortened_code TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

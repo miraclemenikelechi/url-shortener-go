@@ -1,0 +1,11 @@
+version: "2"
+
+sql:
+    - engine: "postgresql"
+      queries: "memory/queries/"
+      schema: "memory/migrations/"
+
+      gen:
+          go:
+              package: "memory"
+              out: "memory"
