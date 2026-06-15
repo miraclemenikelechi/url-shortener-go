@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/miraclemenikelechi/url-shortner-go/memory"
 	"github.com/miraclemenikelechi/url-shortner-go/utils"
 )
 
@@ -30,5 +31,8 @@ func HandleLongTextFromClient(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("received: %s\n", request.RawURL)
-	utils.RespondWithJSON(w, &LongTextResponse{ShortURL: utils.GenerateRandomString(6)})
+	generatedCode := utils.GenerateRandomString(6)
+	memory.URLS_DB[generatedCode] = request.RawURL
+
+	utils.RespondWithJSON(w, &LongTextResponse{ShortURL: generatedCode})
 }
