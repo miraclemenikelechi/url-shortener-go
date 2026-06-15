@@ -9,6 +9,8 @@ import (
 	"database/sql"
 )
 
+var URLS_DB = make(map[string]string)
+
 type DBTX interface {
 	ExecContext(context.Context, string, ...interface{}) (sql.Result, error)
 	PrepareContext(context.Context, string) (*sql.Stmt, error)
