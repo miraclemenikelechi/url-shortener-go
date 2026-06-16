@@ -14,6 +14,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /url-shortner-go
 # stage 2: Run the application
 FROM alpine
 
+COPY --from=builder /app/memory/migrations /memory/migrations
+
 COPY --from=builder /url-shortner-go /url-shortner-go
 
 EXPOSE 8649

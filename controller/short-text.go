@@ -3,17 +3,16 @@ package controllers
 import (
 	"log"
 	"net/http"
-
-	"github.com/miraclemenikelechi/url-shortner-go/memory"
 )
 
-func HandleShortTextFromClient(w http.ResponseWriter, r *http.Request) {
-	code := r.PathValue("code")
+func (c *Controller) HandleShortTextFromClient(w http.ResponseWriter, r *http.Request) {
+	code, ctx := r.PathValue("code"), r.Context()
 	log.Printf("received: %s\n", code)
 
-	if rawURL, ok := memory.URLS_DB[code]; ok {
-		http.Redirect(w, r, rawURL, http.StatusFound)
-	} else {
+	rawURL, err := c.DB.GetUrl(ctx, code)
+	if err != nil {
 		http.Error(w, "not found", http.StatusNotFound)
+		return
 	}
+	http.Redirect(w, r, rawURL, http.StatusFound)
 }

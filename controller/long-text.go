@@ -17,8 +17,9 @@ type LongTextResponse struct {
 	ShortURL string `json:"short_url"`
 }
 
-func HandleLongTextFromClient(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) HandleLongTextFromClient(w http.ResponseWriter, r *http.Request) {
 	var request LongTextRequest
+	ctx := r.Context()
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		http.Error(w, "invalid request", http.StatusBadRequest)
@@ -32,7 +33,13 @@ func HandleLongTextFromClient(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("received: %s\n", request.RawURL)
 	generatedCode := utils.GenerateRandomString(6)
-	memory.URLS_DB[generatedCode] = request.RawURL
+
+	if err := c.DB.CreateUrl(ctx, memory.CreateUrlParams{
+		ShortenedCode: generatedCode, OriginalUrl: request.RawURL,
+	}); err != nil {
+		http.Error(w, "failed to create URL", http.StatusInternalServerError)
+		return
+	}
 
 	utils.RespondWithJSON(w, &LongTextResponse{ShortURL: generatedCode})
 }
