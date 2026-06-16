@@ -14,8 +14,8 @@ provider "docker" {
 resource "docker_image" "app" {
   name = "url-shortener-go-application-image"
   build {
-    context    = "/home/miraclemenikelechi/url-shortener-go"
-    dockerfile = "/home/miraclemenikelechi/url-shortener-go/Dockerfile"
+    context    = abspath("${path.module}/..")
+    dockerfile = abspath("${path.module}/../Dockerfile")
   }
   keep_locally = false
 }
