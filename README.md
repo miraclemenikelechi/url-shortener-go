@@ -23,40 +23,45 @@ Go's `net/http` is production-grade on its own. Most infrastructure tooling at c
 **Why a health endpoint?**
 When this app runs inside Docker, Kubernetes, or behind a load balancer — nothing can see inside the container. The `/health` endpoint is how the outside world asks "are you alive?" Monitoring tools, orchestrators, and load balancers all rely on it to decide whether to send traffic to a container or restart it.
 
-**Current storage: in-memory hash map**
-URLs are stored in a `map[string]string` — fast, simple, and intentionally temporary. The store resets on every restart. A persistent database (PostgreSQL) is the next addition.
+**Storage: PostgreSQL via Docker Compose**
+URLs are persisted in a PostgreSQL 18 database running as a Docker container alongside the app. Configuration is injected via environment variables — no hardcoded credentials. A named Docker volume ensures data survives container restarts. Database migrations are managed with `golang-migrate` and run automatically on startup, so the schema is always in sync with the code.
 
 ---
 
 ## Running locally
 
-**Prerequisites:** Go 1.22+
+**Prerequisites:** Docker + Docker Compose
 
 ```bash
 git clone https://github.com/miraclemenikelechi/url-shortner-go
 cd url-shortner-go
-go run main.go
+cp .env.example .env
+docker compose up --build
+```
+
+One command starts everything — the Go app and the PostgreSQL database. Migrations run automatically on startup.
+
+To stop without losing data:
+```bash
+docker compose down
+```
+
+To stop and wipe the database:
+```bash
+docker compose down -v
 ```
 
 ---
 
-## Running with Docker
+## How Docker is used
 
-**Build:**
-```bash
-docker build -t urlshortener .
-```
-
-**Run:**
-```bash
-docker run -p 8649:8649 urlshortener
-```
-
-The Docker build uses a **multi-stage build**:
+The build uses a **multi-stage Dockerfile**:
 - Stage 1 (`golang:1.26`) compiles the binary
 - Stage 2 (`alpine`) runs it
 
 The final image carries only the compiled binary — not the Go toolchain. This keeps the image small and the attack surface minimal. First build takes ~2 minutes downloading layers. Subsequent builds run in under 10 seconds thanks to layer caching.
+
+Docker Compose wires the app and database together on an internal network. The app reaches Postgres via the service name `postgres:5432` — no hardcoded IPs, no host machine ports exposed unnecessarily.
 
 ---
 
@@ -83,12 +88,18 @@ Coming from Node.js, the biggest adjustment was Go's type system and pattern for
 
 URL validation was also more intentional — checking both the scheme (`http`/`https`) and the host explicitly, rather than relying on a library to decide what "valid" means.
 
+Adding the database introduced `context.Context` properly for the first time. In Go, every database call carries a context — a cancellation signal that travels with the request. If the HTTP client disconnects, the database query cancels automatically. It lives up to everything people say about it.
+
+On Docker: I came into this having avoided Docker for a long time. Building this changed that. When you start thinking about distributed systems and how services actually run in production, Docker isn't optional — it's the bedrock. Without it you're signing up for a battle you can't even start.
+
 ---
 
 ## What's next
 
-- [ ] PostgreSQL persistence via Docker Compose
-- [ ] Terraform to provision the infrastructure
+- [x] URL shortening with validation
+- [x] PostgreSQL persistence via Docker Compose
+- [x] Automatic database migrations on startup
+- [ ] Terraform to provision cloud infrastructure
 - [ ] GitHub Actions CI/CD pipeline
 - [ ] Prometheus metrics + Grafana dashboard
 - [ ] Kubernetes deployment
