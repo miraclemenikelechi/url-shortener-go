@@ -4,7 +4,8 @@ services:
         ports:
             - "${PORT}:${PORT}"
         depends_on:
-            - postgres
+            postgres:
+                condition: service_healthy
         environment:
             - PORT=${PORT}
             - DATABASE_URL=${DATABASE_URL}
@@ -17,6 +18,11 @@ services:
             - POSTGRES_DB=url_shortener
         volumes:
             - postgres_data:/var/lib/postgresql
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres -d url_shortener"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
 
 volumes:
     postgres_data:
