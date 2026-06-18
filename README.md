@@ -89,6 +89,21 @@ Sensitive values like database passwords are declared as `sensitive = true` vari
 
 ---
 
+## CI/CD — GitHub Actions
+
+Every push to `main` triggers an automated pipeline defined in `.github/workflows/ci.yml`.
+
+Without CI/CD, shipping means manually building, tagging, and pushing an image — steps that are easy to skip or do wrong under pressure. Here that process is declared once and runs automatically. The pipeline:
+
+1. Checks out the code on a fresh Ubuntu runner
+2. Authenticates with GitHub Container Registry
+3. Builds the Docker image with layer caching (subsequent builds run in under 2 minutes)
+4. Pushes to `ghcr.io` tagged with the commit SHA — every deployment is traceable
+
+The commit SHA tag means every image is immutable and traceable. Rolling back is pulling a previous SHA. When connected to a real server, the pipeline would also deploy automatically — completing the CD half of CI/CD.
+
+---
+
 ## Testing the endpoints
 
 ```bash
@@ -116,6 +131,8 @@ Adding the database introduced `context.Context` properly for the first time. In
 
 On Terraform: the concept didn't fully click until I understood what it's actually for. It's not a replacement for Docker Compose — they operate at different levels. Terraform provisions what needs to exist. Docker runs what lives inside it. The real value shows at scale — the same configuration file can provision dev, staging, and production without touching a single server manually.
 
+On CI/CD: the pipeline felt almost too simple to write — a few lines of YAML and it works. That simplicity is deceptive. The value is not in the syntax but in the guarantee: every push goes through the same process, every image is tagged with a commit SHA, nothing ships without being built cleanly first. The hard work was in the Dockerfile. Actions just runs it automatically.
+
 On Docker: I came into this having avoided Docker for a long time. Building this changed that. When you start thinking about distributed systems and how services actually run in production, Docker isn't optional — it's the bedrock. Without it you're signing up for a battle you can't even start.
 
 ---
@@ -126,6 +143,6 @@ On Docker: I came into this having avoided Docker for a long time. Building this
 - [x] PostgreSQL persistence via Docker Compose
 - [x] Automatic database migrations on startup
 - [x] Terraform infrastructure as code (Docker provider locally)
-- [ ] GitHub Actions CI/CD pipeline
+- [x] GitHub Actions CI/CD pipeline (build + push to ghcr.io)
 - [ ] Prometheus metrics + Grafana dashboard
 - [ ] Kubernetes deployment
