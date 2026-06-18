@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/miraclemenikelechi/url-shortner-go/utils"
+	"github.com/miraclemenikelechi/url-shortener-go/utils"
 )
 
 type HealthCheckResponse struct {

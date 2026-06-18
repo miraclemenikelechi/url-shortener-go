@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/miraclemenikelechi/url-shortner-go/memory"
-	"github.com/miraclemenikelechi/url-shortner-go/utils"
+	"github.com/miraclemenikelechi/url-shortener-go/memory"
+	"github.com/miraclemenikelechi/url-shortener-go/utils"
 )
 
 type LongTextRequest struct {

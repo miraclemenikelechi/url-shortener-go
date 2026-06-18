@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/miraclemenikelechi/url-shortner-go/controller"
-	"github.com/miraclemenikelechi/url-shortner-go/memory"
+	"github.com/miraclemenikelechi/url-shortener-go/controller"
+	"github.com/miraclemenikelechi/url-shortener-go/memory"
 )
 
 func main() {

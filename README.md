@@ -33,8 +33,8 @@ URLs are persisted in a PostgreSQL 18 database running as a Docker container alo
 **Prerequisites:** Docker + Docker Compose
 
 ```bash
-git clone https://github.com/miraclemenikelechi/url-shortner-go
-cd url-shortner-go
+git clone https://github.com/miraclemenikelechi/url-shortener-go
+cd url-shortener-go
 cp .env.example .env
 docker compose up --build
 ```
