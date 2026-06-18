@@ -65,6 +65,30 @@ Docker Compose wires the app and database together on an internal network. The a
 
 ---
 
+## Infrastructure as Code — Terraform
+
+The `terraform/` folder provisions the entire infrastructure the app runs on. Locally that means Docker containers, images, and networks. On a real cloud it would mean servers, managed databases, firewalls, and DNS — the same Terraform code, different variable values per environment.
+
+**Docker Compose vs Terraform:**
+Docker Compose is the runtime config — it describes how containers run together. Terraform is the infrastructure layer underneath — it provisions and validates what needs to exist before the app can run at all. In production they work at different levels: Terraform creates the servers and networking, Docker Compose (or Kubernetes) runs the containers on top of them.
+
+**Why this matters for multiple environments:**
+The same Terraform configuration can provision dev, staging, and production with different variable files. One codebase, three environments, no configuration drift. What runs in staging is identical to production — just smaller.
+
+```bash
+# Provision everything
+cd terraform
+terraform init
+terraform apply
+
+# Tear down everything cleanly
+terraform destroy
+```
+
+Sensitive values like database passwords are declared as `sensitive = true` variables and stored in `terraform.tfvars` which is never committed to git.
+
+---
+
 ## Testing the endpoints
 
 ```bash
@@ -90,6 +114,8 @@ URL validation was also more intentional — checking both the scheme (`http`/`h
 
 Adding the database introduced `context.Context` properly for the first time. In Go, every database call carries a context — a cancellation signal that travels with the request. If the HTTP client disconnects, the database query cancels automatically. It lives up to everything people say about it.
 
+On Terraform: the concept didn't fully click until I understood what it's actually for. It's not a replacement for Docker Compose — they operate at different levels. Terraform provisions what needs to exist. Docker runs what lives inside it. The real value shows at scale — the same configuration file can provision dev, staging, and production without touching a single server manually.
+
 On Docker: I came into this having avoided Docker for a long time. Building this changed that. When you start thinking about distributed systems and how services actually run in production, Docker isn't optional — it's the bedrock. Without it you're signing up for a battle you can't even start.
 
 ---
@@ -99,7 +125,7 @@ On Docker: I came into this having avoided Docker for a long time. Building this
 - [x] URL shortening with validation
 - [x] PostgreSQL persistence via Docker Compose
 - [x] Automatic database migrations on startup
-- [ ] Terraform to provision cloud infrastructure
+- [x] Terraform infrastructure as code (Docker provider locally)
 - [ ] GitHub Actions CI/CD pipeline
 - [ ] Prometheus metrics + Grafana dashboard
 - [ ] Kubernetes deployment
