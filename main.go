@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	controllers "github.com/miraclemenikelechi/url-shortner-go/controller"
+	"github.com/miraclemenikelechi/url-shortner-go/controller"
 	"github.com/miraclemenikelechi/url-shortner-go/memory"
 )
 
@@ -14,10 +14,10 @@ func main() {
 	db, port := memory.ConnectDB(), os.Getenv("PORT")
 	memory.MigrateDB(db)
 
-	c, mux := &controllers.Controller{DB: memory.New(db)}, http.NewServeMux()
+	c, mux := &controller.Controller{DB: memory.New(db)}, http.NewServeMux()
 
 	// app health check
-	mux.HandleFunc("GET /health", controllers.HealthCheckHandler)
+	mux.HandleFunc("GET /health", controller.HealthCheckHandler)
 
 	// send raw text to the url shortner engine
 	mux.HandleFunc("POST /send-raw-text", c.HandleLongTextFromClient)

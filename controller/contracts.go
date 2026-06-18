@@ -1,4 +1,4 @@
-package controllers
+package controller
 
 import "github.com/miraclemenikelechi/url-shortner-go/memory"
 
